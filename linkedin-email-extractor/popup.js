@@ -12,8 +12,15 @@ var domainInput = document.getElementById('domainInput');
 var enrichBtn = document.getElementById('enrichBtn');
 var enrichStatus = document.getElementById('enrichStatus');
 var enrichResult = document.getElementById('enrichResult');
+var hunterVerifyBtn = document.getElementById('hunterVerifyBtn');
+var apolloBtn = document.getElementById('apolloBtn');
+var apiStatus = document.getElementById('apiStatus');
+var apiResult = document.getElementById('apiResult');
+var hunterKeyInput = document.getElementById('hunterKey');
+var apolloKeyInput = document.getElementById('apolloKey');
+var saveKeysBtn = document.getElementById('saveKeysBtn');
 
-var state = { emails: [], phones: [], profile: null };
+var state = { emails: [], phones: [], profile: null, lastGuess: null };
 
 function setStatus(msg, isError) {
   statusEl.textContent = msg;
@@ -25,6 +32,16 @@ function setEnrichStatus(msg, isError) {
   enrichStatus.textContent = msg || '';
   enrichStatus.classList.toggle('error', !!isError);
   enrichStatus.classList.toggle('neutral', !isError);
+}
+
+function setApiStatus(msg, isError) {
+  apiStatus.textContent = msg || '';
+  apiStatus.classList.toggle('error', !!isError);
+  apiStatus.classList.toggle('neutral', !isError);
+}
+
+function getDomain() {
+  return (domainInput.value || '').trim().toLowerCase().replace(/^https?:\/\//, '').split('/')[0];
 }
 
 function copy(text, doneMsg) {
@@ -335,6 +352,7 @@ async function doEnrich() {
     items.push({ label: a + '  — alternate', value: a });
   });
   renderList(enrichResult, items, '', 'Copied guess: ');
+  state.lastGuess = primary;
   var extra = gh.length > 0 ? ' GitHub:' + gh.length : ' GitHub:0';
   var webExtra = ' Web:' + web.length;
   var mxExtra = mx === true ? ' MX:ok' : ' MX:?';
@@ -342,10 +360,108 @@ async function doEnrich() {
   enrichBtn.disabled = false;
 }
 
+// --- Optional API upgrade (Hunter + Apollo), keys stored locally only ---
+
+function loadKeys(cb) {
+  try {
+    chrome.storage.local.get(['hunterKey', 'apolloKey'], function (res) {
+      if (res) {
+        if (res.hunterKey && hunterKeyInput && !hunterKeyInput.value) hunterKeyInput.value = res.hunterKey;
+        if (res.apolloKey && apolloKeyInput && !apolloKeyInput.value) apolloKeyInput.value = res.apolloKey;
+      }
+      if (cb) cb(res || {});
+    });
+  } catch (e) { if (cb) cb({}); }
+}
+
+async function doHunterVerify() {
+  apiResult.innerHTML = '';
+  var domain = getDomain();
+  var key = (hunterKeyInput.value || '').trim();
+  if (!domain || domain.indexOf('.') < 0) { setApiStatus('Enter company domain first.', true); return; }
+  if (!key) { setApiStatus('Add Hunter key below first (hunter.io/api-keys, free 50/mo, no card). No-key guess above still works.', true); return; }
+  var nm = splitName(state.profile);
+  if (!nm.first || !nm.last) { setApiStatus('Scan a profile first so we have first + last name.', true); return; }
+  setApiStatus('Asking Hunter Email Finder…');
+  try {
+    var url = 'https://api.hunter.io/v2/email-finder?domain=' + encodeURIComponent(domain) +
+      '&first_name=' + encodeURIComponent(nm.first) + '&last_name=' + encodeURIComponent(nm.last) +
+      '&api_key=' + encodeURIComponent(key);
+    var r = await fetch(url);
+    var j = await r.json().catch(function () { return {}; });
+    if (r.status === 401) { setApiStatus('Hunter 401: invalid key. Check hunter.io/api-keys.', true); return; }
+    if (r.status === 429) { setApiStatus('Hunter 429: free quota finished. No-key guess above still works.', true); return; }
+    if (j && j.data && j.data.email) {
+      var email = j.data.email;
+      var score = j.data.score;
+      var vstatus = j.data.verification ? j.data.verification.status : 'unknown';
+      renderList(apiResult, [{ label: email + ' — Hunter ' + vstatus + ' / score ' + score, value: email }], '', 'Copied: ');
+      setApiStatus('Hunter verified: ' + vstatus + ', score ' + score + '.');
+    } else {
+      var msg = (j.errors && j.errors[0] && j.errors[0].details) || 'no data for this name+domain';
+      setApiStatus('Hunter found nothing (' + msg + '). Keep no-key guess.', true);
+    }
+  } catch (e) {
+    setApiStatus('Hunter call failed (network/adblock). Keep no-key guess.', true);
+  }
+}
+
+async function doApolloEnrich() {
+  apiResult.innerHTML = '';
+  var domain = getDomain();
+  var key = (apolloKeyInput.value || '').trim();
+  if (!key) { setApiStatus('Add Apollo key below first (app.apollo.io → Settings → API). No-key guess above still works.', true); return; }
+  var nm = splitName(state.profile);
+  var profileUrl = state.profile && state.profile.profileUrl ? state.profile.profileUrl : '';
+  setApiStatus('Asking Apollo people/match… (uses 1 credit, paid after free)');
+  try {
+    var body = {
+      api_key: key,
+      first_name: nm.first,
+      last_name: nm.last,
+      domain: domain || undefined,
+      linkedin_url: profileUrl || undefined
+    };
+    var r = await fetch('https://api.apollo.io/v1/people/match', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Api-Key': key, 'accept': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    var j = await r.json().catch(function () { return {}; });
+    if (r.status === 401 || r.status === 403) { setApiStatus('Apollo auth failed (401/403): wrong key.', true); return; }
+    if (r.status === 429) { setApiStatus('Apollo 429: out of credits / rate limited.', true); return; }
+    var person = j.person || j;
+    if (person && (person.email || person.personal_emails || person.work_email)) {
+      var email = person.email || person.work_email || (person.personal_emails && person.personal_emails[0]);
+      var phone = person.phone_number || person.phone || ((person.phone_numbers || [])[0] && (person.phone_numbers[0].sanitized_number || person.phone_numbers[0].raw_number));
+      var out = [];
+      if (email) out.push({ label: email + ' — Apollo email', value: email });
+      if (phone) out.push({ label: phone + ' — Apollo phone', value: phone });
+      if (out.length === 0) setApiStatus('Apollo matched person but hid email/phone (needs paid credits).', true);
+      else { renderList(apiResult, out, '', 'Copied: '); setApiStatus('Apollo match ok. Uses credit — use only with legitimate interest.'); }
+    } else {
+      setApiStatus('Apollo: no match (' + ((j.error || j.message) || 'no data') + '). Keep no-key guess.', true);
+    }
+  } catch (e) {
+    // Apollo often blocks browser CORS — detect and guide to proxy.
+    setApiStatus('Apollo blocked from browser (CORS/network). Fix: use Hunter verify instead, or call Apollo via tiny Cloudflare Worker proxy that adds X-Api-Key server-side.', true);
+  }
+}
+
 scanBtn.addEventListener('click', doScan);
 copyAllBtn.addEventListener('click', function () {
   copy(state.emails.concat(state.phones).join('\n'), 'Copied all visible items.');
 });
 enrichBtn.addEventListener('click', doEnrich);
+hunterVerifyBtn.addEventListener('click', doHunterVerify);
+apolloBtn.addEventListener('click', doApolloEnrich);
+saveKeysBtn.addEventListener('click', async function () {
+  await chrome.storage.local.set({
+    hunterKey: (hunterKeyInput.value || '').trim(),
+    apolloKey: (apolloKeyInput.value || '').trim()
+  });
+  setApiStatus('Keys saved locally in this browser only.');
+});
 
+loadKeys();
 doScan();

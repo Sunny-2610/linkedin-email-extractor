@@ -37,6 +37,26 @@
       <p class="hint">Free detection: GitHub public commits + company website + MX check. No signup. Best guess, not verified.</p>
       <p id="enrichStatus" class="status neutral"></p>
       <ul id="enrichResult" class="emails"></ul>
+      <div class="actions">
+        <button id="hunterVerifyBtn" type="button">Verify with Hunter</button>
+        <button id="apolloBtn" type="button">Enrich with Apollo</button>
+      </div>
+      <p id="apiStatus" class="status neutral"></p>
+      <ul id="apiResult" class="emails"></ul>
+    </div>
+
+    <h2>API keys (optional, stored locally only)</h2>
+    <div class="card">
+      <label>Hunter key — free 50/mo, no card — hunter.io/api-keys
+        <input id="hunterKey" type="password" placeholder="hunter key (optional)" />
+      </label>
+      <label>Apollo key — app.apollo.io settings
+        <input id="apolloKey" type="password" placeholder="apollo key (optional)" />
+      </label>
+      <div class="actions">
+        <button id="saveKeysBtn" type="button">Save keys</button>
+      </div>
+      <p class="hint">Keys stay in chrome.storage.local. No-key find still works if empty.</p>
     </div>
 
     <div class="actions bottom">
