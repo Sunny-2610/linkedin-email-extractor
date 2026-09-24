@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "LinkedIn Email Extractor",
+  "version": "1.0.0",
+  "description": "Find public contact emails on LinkedIn profiles you are viewing.",
+  "permissions": ["activeTab", "scripting", "storage"],
+  "host_permissions": ["*://*.linkedin.com/*", "https://api.hunter.io/*", "https://autocomplete.clearbit.com/*"],
+  "action": {
+    "default_title": "Find email on this profile",
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*.linkedin.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
