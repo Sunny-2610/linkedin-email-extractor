@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "description": "Find public contact emails on LinkedIn profiles you are viewing.",
   "permissions": ["activeTab", "scripting", "storage"],
-  "host_permissions": ["*://*.linkedin.com/*", "https://api.hunter.io/*", "https://autocomplete.clearbit.com/*"],
+  "host_permissions": ["*://*.linkedin.com/*", "https://autocomplete.clearbit.com/*", "https://api.github.com/*", "https://dns.google/*"],
   "action": {
     "default_title": "Find email on this profile",
     "default_popup": "popup.html"

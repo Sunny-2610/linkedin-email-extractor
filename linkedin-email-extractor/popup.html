@@ -9,7 +9,7 @@
 <body>
   <header>
     <h1>Email Extractor</h1>
-    <p class="sub">Personal use — visible info only + optional Hunter enrich</p>
+    <p class="sub">Personal use — no API key needed</p>
   </header>
   <main>
     <p id="status" class="status neutral">Opening…</p>
@@ -26,18 +26,15 @@
     <ul id="phones" class="emails"></ul>
     <p class="hint">Phones appear only if the profile publicly shows them (usually 1st-degree + they added it). No free tool can guess hidden mobiles.</p>
 
-    <h2>Enrich hidden business email (optional)</h2>
+    <h2>Find business email (no key)</h2>
     <div class="card">
       <label>Company domain
         <input id="domainInput" type="text" placeholder="acme.com — auto-suggested if found" />
       </label>
-      <label>Hunter API key (free 50/mo)
-        <input id="hunterKey" type="password" placeholder="paste from hunter.io/api-keys" />
-      </label>
       <div class="actions">
-        <button id="enrichBtn" type="button">Guess via Hunter</button>
-        <button id="saveKeyBtn" type="button" title="Save key locally">Save key</button>
+        <button id="enrichBtn" type="button">Find email</button>
       </div>
+      <p class="hint">Free detection: GitHub public commits + company website + MX check. No signup. Best guess, not verified.</p>
       <p id="enrichStatus" class="status neutral"></p>
       <ul id="enrichResult" class="emails"></ul>
     </div>
