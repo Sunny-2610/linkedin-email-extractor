@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="popup.css" />
+  <title>LinkedIn Contact Extractor</title>
+</head>
+<body>
+  <header>
+    <h1>LinkedIn Contact Extractor</h1>
+    <button id="settingsBtn" type="button" class="link" title="Open Settings">Settings</button>
+  </header>
+  <main>
+    <p id="detectStatus" class="status neutral">Checking page…</p>
+
+    <section id="profileBox" class="card hidden">
+      <div id="profileName" class="profile-name"></div>
+      <div id="profileMeta" class="profile-meta"></div>
+      <div id="profileUrl" class="profile-url"></div>
+    </section>
+
+    <section class="card">
+      <div class="row"><strong>Visible on page</strong><span class="hint-inline">free, no key</span></div>
+      <div class="label">Emails</div>
+      <ul id="visibleEmails" class="emails"></ul>
+      <div class="label">Phones</div>
+      <ul id="visiblePhones" class="emails"></ul>
+    </section>
+
+    <section class="card">
+      <div class="row"><strong>Enrichment (BYOK)</strong></div>
+      <div class="provider-row" role="radiogroup" aria-label="Provider">
+        <label><input type="radio" name="provider" value="apollo" checked /> Apollo</label>
+        <label><input type="radio" name="provider" value="hunter" /> Hunter</label>
+      </div>
+      <label>Company domain (needed for Hunter; helps Apollo)
+        <input id="domainInput" type="text" placeholder="acme.com" />
+      </label>
+      <p class="hint">Find Contact may consume credits from your provider account. <span id="fallbackNote"></span></p>
+      <div class="actions">
+        <button id="findBtn" type="button" class="primary">Find Contact</button>
+        <button id="freeGuessBtn" type="button" title="No-key pattern guess">Free guess</button>
+      </div>
+      <p id="progress" class="status neutral"></p>
+
+      <div id="resultBox" class="hidden">
+        <div class="label">Email</div>
+        <div class="result-row"><span id="emailValue">—</span><button id="copyEmailBtn" type="button">Copy</button></div>
+        <div id="emailStatus" class="sub"></div>
+        <div class="label">Mobile</div>
+        <div class="result-row"><span id="phoneValue">—</span><button id="copyPhoneBtn" type="button">Copy</button></div>
+        <div id="phoneNote" class="sub"></div>
+        <div id="providerUsed" class="sub"></div>
+        <div class="actions"><button id="copyAllBtn" type="button">Copy All</button></div>
+      </div>
+      <p id="freeGuessOut" class="status neutral"></p>
+    </section>
+  </main>
+  <script src="../utils/storage.js"></script>
+  <script src="../utils/normalization.js"></script>
+  <script src="../utils/clipboard.js"></script>
+  <script src="../providers/apollo.js"></script>
+  <script src="../providers/hunter.js"></script>
+  <script src="../providers/freeguess.js"></script>
+  <script src="../providers/provider-manager.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

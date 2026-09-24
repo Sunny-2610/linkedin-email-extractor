@@ -1,0 +1,30 @@
+:root { width: 360px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; }
+body { margin: 0; padding: 12px; background: #fff; color: #1a1a1a; }
+header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+header h1 { margin: 0; font-size: 14px; font-weight: 600; }
+.link { background: none; border: none; color: #0a66c2; cursor: pointer; font-size: 12px; padding: 4px; }
+.card { border: 1px solid #e0e0e0; border-radius: 8px; padding: 8px; margin-bottom: 8px; background: #fafafa; }
+.hidden { display: none; }
+.profile-name { font-size: 13px; font-weight: 600; }
+.profile-meta { font-size: 11px; color: #555; }
+.profile-url { font-size: 10px; color: #888; word-break: break-all; }
+.status { margin: 0 0 8px; font-size: 12px; line-height: 1.4; }
+.status.neutral { color: #555; }
+.status.error { color: #b00020; }
+.status.ok { color: #0a7a2e; }
+.row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 12px; }
+.hint-inline { font-size: 10px; color: #888; }
+.label { font-size: 10px; text-transform: uppercase; letter-spacing: .04em; color: #666; margin: 6px 0 4px; }
+.hint { font-size: 11px; color: #777; line-height: 1.4; }
+.sub { font-size: 11px; color: #666; margin: 2px 0 6px; }
+.emails { list-style: none; margin: 0 0 6px; padding: 0; max-height: 160px; overflow-y: auto; }
+.emails li { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 5px 8px; border: 1px solid #e0e0e0; border-radius: 6px; margin-bottom: 5px; font-size: 12px; word-break: break-all; background: #fff; }
+.emails li.empty { justify-content: center; color: #888; border-style: dashed; }
+.provider-row { display: flex; gap: 12px; font-size: 12px; margin-bottom: 6px; }
+label { display: block; font-size: 11px; color: #333; margin-bottom: 6px; }
+input[type="text"] { display: block; width: 100%; box-sizing: border-box; margin-top: 4px; padding: 6px 8px; font-size: 12px; border: 1px solid #ccc; border-radius: 6px; }
+.actions { display: flex; gap: 8px; margin-top: 6px; }
+button { padding: 6px 12px; font-size: 12px; border-radius: 6px; border: 1px solid #ccc; background: #fff; cursor: pointer; }
+button.primary { background: #0a66c2; border-color: #0a66c2; color: #fff; flex: 1; }
+button:disabled { opacity: .5; cursor: default; }
+.result-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; background: #fff; border: 1px solid #e0e0e0; border-radius: 6px; padding: 6px 8px; font-size: 12px; word-break: break-all; }

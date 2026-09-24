@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="options.css" />
+  <title>Settings — LinkedIn Contact Extractor</title>
+</head>
+<body>
+  <main>
+    <h1>Settings</h1>
+    <p class="hint">BYOK: keys are stored in <code>chrome.storage.local</code> only. No shared developer key. No card needed for free tiers.</p>
+
+    <section class="card">
+      <h2>Provider</h2>
+      <label>Default provider
+        <select id="primaryProvider">
+          <option value="apollo">Apollo</option>
+          <option value="hunter">Hunter</option>
+        </select>
+      </label>
+      <label><input id="fallbackEnabled" type="checkbox" checked /> Enable fallback provider</label>
+      <label>Fallback provider
+        <select id="fallbackProvider">
+          <option value="hunter">Hunter</option>
+          <option value="apollo">Apollo</option>
+        </select>
+      </label>
+      <div class="actions"><button id="saveSettingsBtn" type="button">Save settings</button></div>
+      <p id="settingsStatus" class="status neutral"></p>
+    </section>
+
+    <section class="card">
+      <h2>Apollo</h2>
+      <label>Apollo API key
+        <input id="apolloKey" type="password" placeholder="app.apollo.io → Settings → API" />
+      </label>
+      <div class="actions">
+        <button id="testApolloBtn" type="button">Test</button>
+        <button id="saveApolloBtn" type="button">Save</button>
+        <button id="removeApolloBtn" type="button">Remove</button>
+      </div>
+      <p id="apolloStatus" class="status neutral"></p>
+    </section>
+
+    <section class="card">
+      <h2>Hunter</h2>
+      <label>Hunter API key
+        <input id="hunterKey" type="password" placeholder="hunter.io/api-keys" />
+      </label>
+      <div class="actions">
+        <button id="testHunterBtn" type="button">Test</button>
+        <button id="saveHunterBtn" type="button">Save</button>
+        <button id="removeHunterBtn" type="button">Remove</button>
+      </div>
+      <p id="hunterStatus" class="status neutral"></p>
+    </section>
+
+    <section class="card">
+      <h2>Privacy</h2>
+      <p class="hint">Extracted from page: name, headline, company, LinkedIn URL, visible emails/phones. Sent only to the provider you select, only when you click Find Contact. Delete keys anytime here.</p>
+      <div class="actions"><button id="clearAllBtn" type="button">Delete all keys</button></div>
+    </section>
+  </main>
+  <script src="../utils/storage.js"></script>
+  <script src="../utils/normalization.js"></script>
+  <script src="../providers/apollo.js"></script>
+  <script src="../providers/hunter.js"></script>
+  <script src="options.js"></script>
+</body>
+</html>

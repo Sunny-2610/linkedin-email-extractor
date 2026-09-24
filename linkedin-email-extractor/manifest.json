@@ -1,18 +1,29 @@
 {
   "manifest_version": 3,
-  "name": "LinkedIn Email Extractor",
+  "name": "LinkedIn Contact Extractor",
   "version": "1.0.0",
-  "description": "Find public contact emails on LinkedIn profiles you are viewing.",
+  "description": "BYOK contact enrichment for the LinkedIn profile you are viewing (Apollo / Hunter). Keys stay local.",
   "permissions": ["activeTab", "scripting", "storage"],
-  "host_permissions": ["*://*.linkedin.com/*", "https://autocomplete.clearbit.com/*", "https://api.github.com/*", "https://dns.google/*", "https://api.hunter.io/*", "https://api.apollo.io/*"],
-  "action": {
-    "default_title": "Find email on this profile",
-    "default_popup": "popup.html"
+  "host_permissions": [
+    "*://*.linkedin.com/*",
+    "https://api.apollo.io/*",
+    "https://api.hunter.io/*",
+    "https://autocomplete.clearbit.com/*",
+    "https://api.github.com/*",
+    "https://dns.google/*"
+  ],
+  "background": {
+    "service_worker": "background/service-worker.js"
   },
+  "action": {
+    "default_title": "Find contact on this profile",
+    "default_popup": "popup/popup.html"
+  },
+  "options_page": "options/options.html",
   "content_scripts": [
     {
       "matches": ["*://*.linkedin.com/*"],
-      "js": ["content.js"],
+      "js": ["content/linkedin.js"],
       "run_at": "document_idle"
     }
   ]

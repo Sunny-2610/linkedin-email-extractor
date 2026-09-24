@@ -1,46 +1,34 @@
-# LinkedIn Email Extractor (Chrome extension)
+# LinkedIn Contact Extractor (Chrome extension, BYOK)
 
-Finds public contact emails on the LinkedIn profile you are currently viewing and
-lets you copy them with one click.
+Enrich the LinkedIn profile you are viewing via your own Apollo / Hunter API key. Keys stay in `chrome.storage.local` only.
 
-## How it works
+## First-time setup
+1. `chrome://extensions` → Developer mode → Load unpacked → select `linkedin-email-extractor`.
+2. Open extension **Settings** (popup → Settings, or `chrome://extensions` → Details → Extension options).
+3. Select primary provider (Apollo/Hunter), paste your key (no card needed for free tiers), Test, Save. Optionally enable fallback.
+4. Open `linkedin.com/in/...` → click extension → Find Contact.
 
-1. You open a profile (`linkedin.com/in/...`) while logged in to LinkedIn.
-2. Click the extension icon (or the toolbar button) — the popup opens.
-3. It scans the visible profile (including the profile's `Contact info` section)
-   for `mailto:` links and plain-text email addresses, including lightly
-   obfuscated ones like `name [at] domain [dot] com`.
-4. Found emails are listed with per-email **Copy** buttons and a **Copy all**.
+## What it does
+- Detects `/in/` profile, normalizes URL (strips query/hash), extracts name/title/company/URL (FR-01/02/03).
+- Shows visible emails/phones from page + Contact Info modal (free, no key).
+- Find Contact → provider manager → primary (+ fallback if empty) → normalized email/phone/status → Copy / Copy All.
+- Free guess (no key): GitHub + website + MX pattern guess, clearly labeled unverified.
+- Credit warning before paid calls; fallback only on empty/error (never double-charges on success).
 
-## Load the extension (unpacked)
+## Structure (SRS §21)
+```
+manifest.json
+background/service-worker.js
+content/linkedin.js
+popup/popup.html popup.js popup.css
+options/options.html options.js options.css
+providers/provider-manager.js apollo.js hunter.js freeguess.js
+utils/storage.js clipboard.js normalization.js
+```
 
-1. Open `chrome://extensions`.
-2. Enable **Developer mode** (toggle top right).
-3. Click **Load unpacked** and select this `linkedin-email-extractor` folder.
-4. Pin the extension to the toolbar for easy access.
-
-## Test
-
-- Profile with a public email -> the popup should list it.
-- Profile without any email -> you should see "No email found."
-- Open a non-profile page -> the popup tells you to open a profile first.
-
-## Files
-
-| File          | Purpose                                             |
-| ------------- | --------------------------------------------------- |
-| `manifest.json` | MV3 manifest: permissions, action, content script |
-| `content.js`  | Scans the profile DOM when the popup asks it to     |
-| `popup.html` / `popup.css` | Popup UI                                |
-| `popup.js`    | Triggers the scan, renders results, copy helpers    |
-
-No icons are shipped yet (`chrome://extensions` shows a placeholder icon). Add
-16/32/48/128px PNGs under `icons/` and reference them in `manifest.json` when
-you have brand artwork.
-
-## Notes
-
-- Reads only the page you have open — no background crawling, so it stays within
-  LinkedIn's terms of service.
-- Only use emails you find for outreach where the member made them public or you
-  have a legitimate business reason (respect GDPR/can-spam).
+## Test (MVP acceptance)
+- Non-profile page → "No LinkedIn profile detected."
+- Settings → Test Apollo/Hunter → valid/invalid messages.
+- Save/update/remove keys locally.
+- Find Contact with key → email/phone/status or "Not available from provider".
+- Copy email/phone/all works.
